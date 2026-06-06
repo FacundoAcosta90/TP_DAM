@@ -34,7 +34,9 @@ abstract class TechFieldDatabase : RoomDatabase() {
                     context.applicationContext,
                     TechFieldDatabase::class.java,
                     "techfield_database"
-                ).build()
+                )
+                    .createFromAsset("database/techfield_database.db")
+                    .build()
                 INSTANCE = instance
                 instance
             }
