@@ -10,9 +10,9 @@ import com.techfield.app.data.local.entities.*
 @Database(
     entities = [
         MaquinaEntity::class,
-        //TicketEntity::class,
-        //RepuestoUtilizadoEntity::class,
-        //EvidenciaFotograficaEntity::class
+        TicketEntity::class,
+        RepuestoUtilizadoEntity::class,
+        EvidenciaFotograficaEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -20,9 +20,9 @@ import com.techfield.app.data.local.entities.*
 abstract class TechFieldDatabase : RoomDatabase() {
 
     abstract fun maquinaDao(): MaquinaDao
-    //abstract fun ticketDao(): TicketDao
-    //abstract fun repuestoUtilizadoDao(): RepuestoUtilizadoDao
-    //abstract fun evidenciaFotograficaDao(): EvidenciaFotograficaDao
+    abstract fun ticketDao(): TicketDao
+    abstract fun repuestoUtilizadoDao(): RepuestoUtilizadoDao
+    abstract fun evidenciaFotograficaDao(): EvidenciaFotograficaDao
 
     companion object {
         @Volatile
