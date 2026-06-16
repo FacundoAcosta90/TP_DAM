@@ -1,0 +1,41 @@
+package com.example.techfield.repository
+
+import com.example.techfield.database.TicketDao
+import com.example.techfield.database.TicketEntity
+import com.techfield.data.local.ComentarioEntity
+import kotlinx.coroutines.flow.Flow
+
+class TicketRepository(
+    private val ticketDao: TicketDao // <-- Ahora usamos una sola variable limpia
+) {
+
+    fun getAllTickets(): Flow<List<TicketEntity>> =
+        ticketDao.getAllTickets()
+
+    suspend fun getTicketById(id: Int): TicketEntity? =
+        ticketDao.getTicketById(id)
+
+    suspend fun insert(ticket: TicketEntity) =
+        ticketDao.insert(ticket)
+
+    suspend fun update(ticket: TicketEntity) =
+        ticketDao.update(ticket)
+
+    suspend fun delete(ticket: TicketEntity) =
+        ticketDao.delete(ticket)
+
+    // --- OPERACIONES DE LA BITÁCORA ---
+
+    suspend fun insertComentario(comentario: ComentarioEntity) {
+        ticketDao.insertarComentario(comentario)
+    }
+
+    fun getComentariosPorTicket(ticketId: Int): Flow<List<ComentarioEntity>> {
+        return ticketDao.obtenerComentariosPorTicket(ticketId)
+    }
+
+    // --- NUEVA OPERACIÓN: PUENTE PARA EL LOGIN CONTRA ROOM ---
+    suspend fun obtenerUsuario(usuario: String): com.example.techfield.database.UserEntity? {
+        return ticketDao.obtenerUsuario(usuario)
+    }
+}

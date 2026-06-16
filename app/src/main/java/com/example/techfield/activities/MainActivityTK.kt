@@ -1,0 +1,286 @@
+package com.example.techfield.activities
+
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.techfield.database.TicketDatabase
+import com.example.techfield.database.TicketEntity
+import com.example.techfield.repository.TicketRepository
+import com.techfield.ui.components.TicketCard
+import com.techfield.viewmodel.TicketViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import com.example.techfield.activities.ProfileActivity
+
+@OptIn(ExperimentalMaterial3Api::class)
+class MainActivityTK : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val database = TicketDatabase.Companion.getDatabase(this)
+        val repository = TicketRepository(database.ticketDao())
+
+        val viewModel = ViewModelProvider(
+            this,
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return TicketViewModel(repository) as T
+                }
+            }
+        )[TicketViewModel::class.java]
+
+        setContent {
+            MaterialTheme {
+                MainTicketsContent(viewModel = viewModel)
+            }
+        }
+    }
+}
+
+// --- 1. CONTENEDOR PRINCIPAL DE LA PANTALLA ---
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainTicketsContent(viewModel: TicketViewModel) {
+    val context = LocalContext.current
+    var mostrarDialogo by remember { mutableStateOf(false) }
+    var filtroActual by remember { mutableStateOf("Pendiente") }
+
+    // Diálogo modularizado externo
+    if (mostrarDialogo) {
+        NuevoTicketDialog(
+            viewModel = viewModel,
+            onDismiss = { mostrarDialogo = false }
+        )
+    }
+
+    Scaffold(
+        containerColor = Color(0xFFF7F7F7),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { mostrarDialogo = true },
+                containerColor = Color(0xFF6C00FF)
+            ) {
+                Text("+", color = Color.White, style = MaterialTheme.typography.titleLarge)
+            }
+        },
+        bottomBar = {
+            TechFieldBottomBar(context = context)
+        }
+    ) { paddingValues ->
+        val scrollState = rememberScrollState()
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(24.dp)
+                .verticalScroll(scrollState)
+        ) {
+            Text(
+                text = "Mis Tickets",
+                style = MaterialTheme.typography.headlineLarge
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Gestione sus tareas de campo asignadas y supervise el progreso en tiempo real.",
+                color = Color.Gray
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Selectores de Filtro
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(
+                    onClick = { filtroActual = "Pendiente" },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (filtroActual == "Pendiente") Color(0xFF6C00FF) else Color(0xFFE0E0E0),
+                        contentColor = if (filtroActual == "Pendiente") Color.White else Color.Black
+                    )
+                ) {
+                    Text("PENDIENTES")
+                }
+
+                Button(
+                    onClick = { filtroActual = "En Curso" },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (filtroActual == "En Curso") Color(0xFF6C00FF) else Color(0xFFE0E0E0),
+                        contentColor = if (filtroActual == "En Curso") Color.White else Color.Black
+                    )
+                ) {
+                    Text("EN CURSO")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Listado Reactivo de Tarjetas
+            val tickets by viewModel.tickets.collectAsState(initial = emptyList())
+            val ticketsFiltrados = tickets.filter { it.estado == filtroActual }
+
+            ticketsFiltrados.forEach { ticket ->
+                TicketCard(
+                    ticket = ticket,
+                    viewModel = viewModel,
+                    onDelete = { viewModel.eliminarTicket(ticket) },
+                    onUpdateTicket = { ticketEditado ->
+                        viewModel.actualizarTicket(ticketEditado)
+                        filtroActual = ticketEditado.estado
+                    }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+// --- 2. COMPOSABLE EXTERNO: DIÁLOGO DE NUEVO TICKET ---
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NuevoTicketDialog(
+    viewModel: TicketViewModel,
+    onDismiss: () -> Unit
+) {
+    var titulo by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
+    var ubicacion by remember { mutableStateOf("") }
+    var prioridad by remember { mutableStateOf("Media") }
+    var expanded by remember { mutableStateOf(false) }
+
+    val esFormularioValido = titulo.isNotBlank() && ubicacion.isNotBlank()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Nuevo Ticket de Campo") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = titulo,
+                    onValueChange = { titulo = it },
+                    label = { Text("Título *") },
+                    isError = titulo.isBlank() && descripcion.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = descripcion,
+                    onValueChange = { descripcion = it },
+                    label = { Text("Descripción") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = ubicacion,
+                    onValueChange = { ubicacion = it },
+                    label = { Text("Ubicación (Planta / Cliente) *") },
+                    placeholder = { Text("Ej: Planta Piso 2 o Cliente Central") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    OutlinedTextField(
+                        value = prioridad,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Prioridad") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        modifier = Modifier.fillMaxWidth().menuAnchor()
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        DropdownMenuItem(text = { Text("Alta") }, onClick = { prioridad = "Alta"; expanded = false })
+                        DropdownMenuItem(text = { Text("Media") }, onClick = { prioridad = "Media"; expanded = false })
+                        DropdownMenuItem(text = { Text("Baja") }, onClick = { prioridad = "Baja"; expanded = false })
+                    }
+                }
+
+                if (!esFormularioValido) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "* Los campos Título y Ubicación son obligatorios.",
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    viewModel.agregarTicket(
+                        TicketEntity(
+                            titulo = titulo,
+                            descripcion = descripcion,
+                            ubicacion = ubicacion,
+                            estado = "Pendiente",
+                            prioridad = prioridad
+                        )
+                    )
+                    onDismiss()
+                },
+                enabled = esFormularioValido
+            ) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+// --- 3. COMPOSABLE EXTERNO: BARRA DE NAVEGACIÓN ---
+// --- 3. COMPOSABLE EXTERNO: BARRA DE NAVEGACIÓN ---
+@Composable
+fun TechFieldBottomBar(context: Context) {
+    NavigationBar {
+        NavigationBarItem(
+            selected = true,
+            onClick = {},
+            icon = { Text("🎟️") },
+            label = { Text("Tickets") }
+        )
+
+        NavigationBarItem(
+            selected = false,
+            onClick = {
+                // CORREGIDO: Sintaxis limpia para iniciar la actividad del perfil
+                val intent = Intent(context, ProfileActivity::class.java)
+                context.startActivity(intent)
+            },
+            icon = { Text("👤") },
+            label = { Text("Perfil") }
+        )
+    }
+}
