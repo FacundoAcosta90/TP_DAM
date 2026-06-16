@@ -28,14 +28,14 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    viewModel: TicketViewModel, // <-- 1. Agregamos el ViewModel como parámetro
+    viewModel: TicketViewModel,
     onLoginSuccess: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Estado local para saber si mostramos alerta de error
+
     var errorCredenciales by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
@@ -48,7 +48,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
 
-        // Logo
+
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -70,12 +70,12 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Email / Usuario
+
         OutlinedTextField(
             value = email,
             onValueChange = {
                 email = it
-                errorCredenciales = false // Limpia el error al escribir
+                errorCredenciales = false
             },
             label = { Text("Usuario") },
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
@@ -86,12 +86,12 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Password
+
         OutlinedTextField(
             value = password,
             onValueChange = {
                 password = it
-                errorCredenciales = false // Limpia el error al escribir
+                errorCredenciales = false
             },
             label = { Text("Contraseña") },
             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
@@ -106,7 +106,7 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // 2. MUESTRA TEXTO DE ERROR SI LAS CREDENCIALES FALLAN
+
         if (errorCredenciales) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -118,12 +118,12 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Button login
+
         Button(
             onClick = {
                 Log.d("LOGIN", "CLICK BOTON")
 
-                // 3. VALIDACIÓN PROFESIONAL USANDO CORRUTINAS CONTRA ROOM
+
                 coroutineScope.launch {
                     val usuarioDb = viewModel.autenticarUsuario(email)
 

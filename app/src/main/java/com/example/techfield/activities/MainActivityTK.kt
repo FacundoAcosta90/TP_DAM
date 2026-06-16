@@ -24,7 +24,7 @@ import com.techfield.viewmodel.TicketViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import com.example.techfield.activities.ProfileActivity
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivityTK : ComponentActivity() {
@@ -53,7 +53,7 @@ class MainActivityTK : ComponentActivity() {
     }
 }
 
-// --- 1. CONTENEDOR PRINCIPAL DE LA PANTALLA ---
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTicketsContent(viewModel: TicketViewModel) {
@@ -61,7 +61,7 @@ fun MainTicketsContent(viewModel: TicketViewModel) {
     var mostrarDialogo by remember { mutableStateOf(false) }
     var filtroActual by remember { mutableStateOf("Pendiente") }
 
-    // Diálogo modularizado externo
+
     if (mostrarDialogo) {
         NuevoTicketDialog(
             viewModel = viewModel,
@@ -106,7 +106,7 @@ fun MainTicketsContent(viewModel: TicketViewModel) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Selectores de Filtro
+
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(
                     onClick = { filtroActual = "Pendiente" },
@@ -131,7 +131,7 @@ fun MainTicketsContent(viewModel: TicketViewModel) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Listado Reactivo de Tarjetas
+
             val tickets by viewModel.tickets.collectAsState(initial = emptyList())
             val ticketsFiltrados = tickets.filter { it.estado == filtroActual }
 
@@ -151,7 +151,7 @@ fun MainTicketsContent(viewModel: TicketViewModel) {
     }
 }
 
-// --- 2. COMPOSABLE EXTERNO: DIÁLOGO DE NUEVO TICKET ---
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NuevoTicketDialog(
@@ -260,8 +260,7 @@ fun NuevoTicketDialog(
     )
 }
 
-// --- 3. COMPOSABLE EXTERNO: BARRA DE NAVEGACIÓN ---
-// --- 3. COMPOSABLE EXTERNO: BARRA DE NAVEGACIÓN ---
+
 @Composable
 fun TechFieldBottomBar(context: Context) {
     NavigationBar {
@@ -275,7 +274,7 @@ fun TechFieldBottomBar(context: Context) {
         NavigationBarItem(
             selected = false,
             onClick = {
-                // CORREGIDO: Sintaxis limpia para iniciar la actividad del perfil
+
                 val intent = Intent(context, ProfileActivity::class.java)
                 context.startActivity(intent)
             },

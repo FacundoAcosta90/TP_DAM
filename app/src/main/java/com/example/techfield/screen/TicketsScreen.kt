@@ -46,14 +46,14 @@ fun TicketsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 16.dp, vertical = 8.dp) // Un toque de margen para las tarjetas
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
 
             items(tickets) { ticket ->
 
                 TicketCard(
                     ticket = ticket,
-                    viewModel = viewModel, // <-- CORRECCIÓN: Pasamos el ViewModel obligatorio para la bitácora
+                    viewModel = viewModel,
                     onDelete = {
                         viewModel.eliminarTicket(ticket)
                     },
@@ -62,7 +62,7 @@ fun TicketsScreen(
                     }
                 )
 
-                // Separación estética entre cada ticket de la lista
+
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }

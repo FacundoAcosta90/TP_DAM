@@ -6,7 +6,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.techfield.database.TicketEntity
 import com.techfield.data.local.ComentarioEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -28,13 +27,13 @@ interface TicketDao {
     @Delete
     suspend fun delete(ticket: TicketEntity)
 
-    // --- OPERACIONES DE LA BITÁCORA ---
+
 
     @Insert
     suspend fun insertarComentario(comentario: ComentarioEntity)
 
     @Query("SELECT * FROM comentarios WHERE ticketId = :ticketId ORDER BY id DESC")
-    fun obtenerComentariosPorTicket(ticketId: Int): Flow<List<ComentarioEntity>> // <-- Código más limpio usando el import de arriba
+    fun obtenerComentariosPorTicket(ticketId: Int): Flow<List<ComentarioEntity>>
 
     @Query("SELECT * FROM users WHERE usuario = :usuario LIMIT 1")
     suspend fun obtenerUsuario(usuario: String): UserEntity?

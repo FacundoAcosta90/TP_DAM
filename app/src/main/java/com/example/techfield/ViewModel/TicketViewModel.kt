@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.techfield.data.local.ComentarioEntity
 import com.example.techfield.database.TicketEntity
-import com.example.techfield.database.UserEntity // <-- NUEVO IMPORT: La entidad de usuario
+import com.example.techfield.database.UserEntity
 import com.example.techfield.repository.TicketRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -41,12 +41,12 @@ class TicketViewModel(
         }
     }
 
-    // --- NUEVA FUNCIÓN: AUTENTICACIÓN LOGÍSTICA PARA EL LOGIN ---
+
     suspend fun autenticarUsuario(usuarioName: String): UserEntity? {
         return repository.obtenerUsuario(usuarioName)
     }
 
-    // --- NUEVAS FUNCIONES DE LA BITÁCORA (CORREGIDAS) ---
+
     fun agregarComentario(ticketId: Int, texto: String) {
         viewModelScope.launch {
             if (texto.isNotBlank()) {

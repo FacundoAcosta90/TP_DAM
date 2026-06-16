@@ -24,7 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.techfield.activities.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -61,7 +60,7 @@ class OnboardingActivity : ComponentActivity() {
     }
 }
 
-// --- COMPOSABLE: PANTALLA CONTENEDORA GENERAL ---
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(onFinalizado: () -> Unit) {
@@ -82,10 +81,10 @@ fun OnboardingScreen(onFinalizado: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Indicadores de puntitos superiores
+
             OnboardingIndicators(paginasSize = paginas.size, currentPage = pagerState.currentPage)
 
-            // Deslizable principal (Usa el Composable modularizado de abajo)
+
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.weight(1f)
@@ -93,7 +92,7 @@ fun OnboardingScreen(onFinalizado: () -> Unit) {
                 OnboardingPageContent(datos = paginas[page])
             }
 
-            // Botonera de abajo
+
             OnboardingBottomButtons(
                 pagerState = pagerState,
                 paginasSize = paginas.size,
@@ -104,7 +103,7 @@ fun OnboardingScreen(onFinalizado: () -> Unit) {
     }
 }
 
-// --- COMPOSABLE REMOTO: DISEÑO INTERNO DE CADA SLIDE ---
+
 @Composable
 fun OnboardingPageContent(datos: OnboardingData) {
     Column(
@@ -131,7 +130,7 @@ fun OnboardingPageContent(datos: OnboardingData) {
     }
 }
 
-// --- COMPOSABLE REMOTO: PUNTITOS DE NAVEGACIÓN ---
+
 @Composable
 fun OnboardingIndicators(paginasSize: Int, currentPage: Int) {
     Row(
@@ -151,7 +150,7 @@ fun OnboardingIndicators(paginasSize: Int, currentPage: Int) {
     }
 }
 
-// --- COMPOSABLE REMOTO: BOTONES DE ACCIÓN ---
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingBottomButtons(

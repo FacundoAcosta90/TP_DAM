@@ -6,7 +6,7 @@ import com.techfield.data.local.ComentarioEntity
 import kotlinx.coroutines.flow.Flow
 
 class TicketRepository(
-    private val ticketDao: TicketDao // <-- Ahora usamos una sola variable limpia
+    private val ticketDao: TicketDao
 ) {
 
     fun getAllTickets(): Flow<List<TicketEntity>> =
@@ -24,7 +24,7 @@ class TicketRepository(
     suspend fun delete(ticket: TicketEntity) =
         ticketDao.delete(ticket)
 
-    // --- OPERACIONES DE LA BITÁCORA ---
+
 
     suspend fun insertComentario(comentario: ComentarioEntity) {
         ticketDao.insertarComentario(comentario)
@@ -34,7 +34,7 @@ class TicketRepository(
         return ticketDao.obtenerComentariosPorTicket(ticketId)
     }
 
-    // --- NUEVA OPERACIÓN: PUENTE PARA EL LOGIN CONTRA ROOM ---
+
     suspend fun obtenerUsuario(usuario: String): com.example.techfield.database.UserEntity? {
         return ticketDao.obtenerUsuario(usuario)
     }

@@ -11,5 +11,5 @@ data class TicketEntity(
     val ubicacion: String,
     val estado: String,
     val prioridad: String,
-    val fotoUri: String? = null // <-- AGREGA ESTA LÍNEA (puede ser nulo si no hay foto)
+    val fotoUri: String? = null
 )

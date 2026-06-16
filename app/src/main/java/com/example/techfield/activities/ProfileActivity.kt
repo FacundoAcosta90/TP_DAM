@@ -1,6 +1,6 @@
 package com.example.techfield.activities
 
-import android.content.Context
+
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -31,8 +31,7 @@ import com.example.techfield.repository.TicketRepository
 import com.techfield.viewmodel.TicketViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.techfield.activities.MainActivity
-import com.example.techfield.activities.MainActivityTK
+
 
 class ProfileActivity : ComponentActivity() {
 
@@ -75,7 +74,7 @@ class ProfileActivity : ComponentActivity() {
     }
 }
 
-// --- COMPOSABLE: CUERPO PRINCIPAL DEL PERFIL ---
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileContent(
@@ -126,7 +125,7 @@ fun ProfileContent(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Avatar con Estado Online
+
             Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
                     modifier = Modifier
@@ -161,7 +160,7 @@ fun ProfileContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Tarjetas de Métricas
+
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
                 Card(
                     modifier = Modifier.weight(1f),
@@ -188,12 +187,12 @@ fun ProfileContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Panel de Control modularizado interno
+
             PanelDeControlAjustes()
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botón Cerrar Sesión
+
             Button(
                 onClick = onCerrarSesion,
                 modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -210,7 +209,7 @@ fun ProfileContent(
     }
 }
 
-// --- COMPOSABLE: PANEL DE AJUSTES INTERACTIVO ---
+
 @Composable
 fun PanelDeControlAjustes() {
     Card(

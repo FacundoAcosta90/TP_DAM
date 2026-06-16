@@ -5,12 +5,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.techfield.data.local.ComentarioEntity // <-- NUEVO IMPORT: Traemos la entidad de comentarios
+import com.techfield.data.local.ComentarioEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-// Agregamos ComentarioEntity a la lista y subimos la versión a 3
+
 @Database(
     entities = [TicketEntity::class, UserEntity::class, ComentarioEntity::class],
     version = 3,
