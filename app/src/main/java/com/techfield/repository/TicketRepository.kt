@@ -1,7 +1,7 @@
-package com.example.techfield.repository
+package com.techfield.repository
 
-import com.example.techfield.database.TicketDao
-import com.example.techfield.database.TicketEntity
+import com.techfield.database.TicketDao
+import com.techfield.database.TicketEntity
 import com.techfield.data.local.ComentarioEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -35,7 +35,7 @@ class TicketRepository(
     }
 
 
-    suspend fun obtenerUsuario(usuario: String): com.example.techfield.database.UserEntity? {
+    suspend fun obtenerUsuario(usuario: String): com.techfield.database.UserEntity? {
         return ticketDao.obtenerUsuario(usuario)
     }
 }

@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.dp
-import com.example.techfield.database.TicketEntity
-import com.techfield.viewmodel.TicketViewModel // <-- IMPORTAMOS TU VIEWMODEL
+import com.techfield.database.TicketEntity
+import com.techfield.viewmodel.TicketViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
@@ -25,7 +25,7 @@ import androidx.compose.runtime.collectAsState
 @Composable
 fun TicketCard(
     ticket: TicketEntity,
-    viewModel: TicketViewModel, // <-- CORRECCIÓN: Ahora recibe el ViewModel para la bitácora
+    viewModel: TicketViewModel,
     onDelete: () -> Unit,
     onUpdateTicket: (TicketEntity) -> Unit
 ) {
@@ -33,7 +33,7 @@ fun TicketCard(
     var mostrarConfirmacion by remember { mutableStateOf(false) }
     var verDetalle by remember { mutableStateOf(false) }
 
-    // Trae los comentarios del ticket en tiempo real
+
     val listaComentarios by viewModel.obtenerComentarios(ticket.id).collectAsState(initial = emptyList())
     var nuevoComentarioTexto by remember { mutableStateOf("") }
 
@@ -172,7 +172,7 @@ fun TicketCard(
                         }
                     }
 
-                    // --- NUEVA SECCIÓN DE LA BITÁCORA AGREGADA CORRECTAMENTE ---
+
                     Divider(modifier = Modifier.padding(vertical = 24.dp))
 
                     Text(text = "📜 Bitácora de Notas", style = MaterialTheme.typography.titleLarge)

@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.techfield.data.local.ComentarioEntity
-import com.example.techfield.database.TicketEntity
-import com.example.techfield.database.UserEntity
-import com.example.techfield.repository.TicketRepository
+import com.techfield.database.TicketEntity
+import com.techfield.database.UserEntity
+import com.techfield.repository.TicketRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package com.example.techfield.activities
+package com.techfield.activities
 
 
 import android.content.Intent
@@ -26,11 +26,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.techfield.database.TicketDatabase
-import com.example.techfield.repository.TicketRepository
+import com.techfield.database.TicketDatabase
+import com.techfield.repository.TicketRepository
 import com.techfield.viewmodel.TicketViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+
 
 
 class ProfileActivity : ComponentActivity() {

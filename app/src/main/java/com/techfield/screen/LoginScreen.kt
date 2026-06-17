@@ -22,7 +22,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.techfield.R
+import com.techfield.R
 import com.techfield.viewmodel.TicketViewModel
 import kotlinx.coroutines.launch
 

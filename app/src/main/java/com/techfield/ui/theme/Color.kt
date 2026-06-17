@@ -1,4 +1,4 @@
-package com.example.techfield.ui.theme
+package com.techfield.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

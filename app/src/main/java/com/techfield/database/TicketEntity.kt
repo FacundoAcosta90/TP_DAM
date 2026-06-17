@@ -1,4 +1,4 @@
-package com.example.techfield.database
+package com.techfield.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,4 +1,4 @@
-package com.example.techfield.database
+package com.techfield.database
 
 import android.content.Context
 import androidx.room.Database

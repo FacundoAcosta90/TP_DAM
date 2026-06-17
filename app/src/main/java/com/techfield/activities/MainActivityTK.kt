@@ -1,4 +1,4 @@
-package com.example.techfield.activities
+package com.techfield.activities
 
 import android.content.Context
 import android.content.Intent
@@ -16,9 +16,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.techfield.database.TicketDatabase
-import com.example.techfield.database.TicketEntity
-import com.example.techfield.repository.TicketRepository
+import com.techfield.database.TicketDatabase
+import com.techfield.database.TicketEntity
+import com.techfield.repository.TicketRepository
 import com.techfield.ui.components.TicketCard
 import com.techfield.viewmodel.TicketViewModel
 import androidx.compose.runtime.collectAsState

@@ -17,7 +17,7 @@
         tools:ignore="LockedOrientationActivity">
 
         <activity
-            android:name="com.example.techfield.activities.OnboardingActivity"
+            android:name="com.techfield.activities.OnboardingActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.TechField">
@@ -28,18 +28,18 @@
         </activity>
 
         <activity
-            android:name="com.example.techfield.activities.MainActivity"
+            android:name="com.techfield.activities.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.TechField" />
 
         <activity
-            android:name="com.example.techfield.activities.MainActivityTK"
+            android:name="com.techfield.activities.MainActivityTK"
             android:exported="false"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.example.techfield.activities.ProfileActivity"
+            android:name="com.techfield.activities.ProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 

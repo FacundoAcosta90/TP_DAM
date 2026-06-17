@@ -1,4 +1,4 @@
-package com.example.techfield.activities
+package com.techfield.activities
 
 import android.content.Context
 import android.content.Intent
