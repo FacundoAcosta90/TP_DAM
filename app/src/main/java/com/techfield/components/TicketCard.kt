@@ -33,7 +33,6 @@ fun TicketCard(
     var mostrarConfirmacion by remember { mutableStateOf(false) }
     var verDetalle by remember { mutableStateOf(false) }
 
-
     val listaComentarios by viewModel.obtenerComentarios(ticket.id).collectAsState(initial = emptyList())
     var nuevoComentarioTexto by remember { mutableStateOf("") }
 
@@ -83,20 +82,59 @@ fun TicketCard(
         }
     }
 
+    // ======================================================================
+    // LOGICA DEL SLA - SE MOVIÓ AQUÍ ARRIBA (AFUERA DE LOS DIÁLOGOS)
+    // ======================================================================
+    val tiempoLimiteSLA = when (ticket.prioridad.uppercase()) {
+        "ALTA" -> 2 * 60 * 60 * 1000L      // 2 Horas
+        "MEDIA" -> 8 * 60 * 60 * 1000L     // 8 Horas
+        "BAJA" -> 24 * 60 * 60 * 1000L     // 24 Horas
+        else -> 8 * 60 * 60 * 1000L
+    }
+
+    var tiempoTranscurridoTexto by remember { mutableStateOf("00:00:00") }
+    var estaVencido by remember { mutableStateOf(false) }
+
+    LaunchedEffect(ticket.estado, ticket.tiempoPausadoAcumulado, ticket.ultimaVezPausado) {
+        if (ticket.estado.uppercase() == "FINALIZADO") {
+            tiempoTranscurridoTexto = "Ticket Terminado"
+            estaVencido = false
+            return@LaunchedEffect
+        }
+
+        while (true) {
+            val ahora = System.currentTimeMillis()
+            val tiempoFinalParaCalculo = ticket.ultimaVezPausado ?: ahora
+            var tiempoActivoNeto = (tiempoFinalParaCalculo - ticket.fechaCreacion) - ticket.tiempoPausadoAcumulado
+            if (tiempoActivoNeto < 0) tiempoActivoNeto = 0
+
+            estaVencido = tiempoActivoNeto > tiempoLimiteSLA
+
+            val segundosTotales = tiempoActivoNeto / 1000
+            val horas = segundosTotales / 3600
+            val minutos = (segundosTotales % 3600) / 60
+            val segundos = segundosTotales % 60
+            tiempoTranscurridoTexto = String.format("%02d:%02d:%02d", horas, minutos, segundos)
+
+            kotlinx.coroutines.delay(1000L)
+        }
+    }
+    // ======================================================================
+
     if (mostrarConfirmacion) {
         AlertDialog(
             onDismissRequest = { mostrarConfirmacion = false },
             title = { Text("¿Finalizar Ticket?") },
-            text = { Text("Al marcar este ticket como 'Finalizado', se eliminará permanentemente de tu lista de tareas.") },
+            text = { Text("Al marcar este ticket como 'Finalizado', se registrará en Tickets Finalizados.") },
             confirmButton = {
                 Button(
                     onClick = {
                         mostrarConfirmacion = false
-                        onDelete()
+                        onUpdateTicket(ticket.copy(estado = "Finalizado"))
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                 ) {
-                    Text("Sí, finalizar y borrar")
+                    Text("Sí, finalizar")
                 }
             },
             dismissButton = {
@@ -123,6 +161,9 @@ fun TicketCard(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(text = "📍 Ubicación: ${ticket.ubicacion}", color = Color.Gray)
                     Text(text = "⚡ Estado actual: ${ticket.estado}", color = Color.Gray)
+
+                    // Mostramos el SLA también dentro del Detalle
+                    Text(text = "⏳ SLA Activo: $tiempoTranscurridoTexto", color = Color.Gray)
 
                     Divider(modifier = Modifier.padding(vertical = 24.dp))
 
@@ -171,7 +212,6 @@ fun TicketCard(
                             }
                         }
                     }
-
 
                     Divider(modifier = Modifier.padding(vertical = 24.dp))
 
@@ -238,6 +278,7 @@ fun TicketCard(
         }
     }
 
+    // CARD PRINCIPAL
     Card(
         onClick = { verDetalle = true },
         modifier = Modifier.fillMaxWidth(),
@@ -259,6 +300,28 @@ fun TicketCard(
                     else -> Color(0xFF4CAF50)
                 }
             )
+
+            // --- VISTA DEL SLA AGREGADA EN LA TARJETA PRINCIPAL ---
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "⏳ SLA: $tiempoTranscurridoTexto",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.DarkGray
+                )
+                if (ticket.estado.uppercase() != "FINALIZADO") {
+                    Text(
+                        text = if (estaVencido) "⚠️ VENCIDO" else "✅ A TIEMPO",
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (estaVencido) Color.Red else Color(0xFF4CAF50)
+                    )
+                }
+            }
+            // -----------------------------------------------------
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -299,7 +362,29 @@ fun TicketCard(
                                     if (opcionEstado == "Finalizado") {
                                         mostrarConfirmacion = true
                                     } else {
-                                        onUpdateTicket(ticket.copy(estado = opcionEstado))
+                                        val ahora = System.currentTimeMillis()
+
+                                        val ticketActualizado = when {
+                                            opcionEstado.equals("Pendiente", ignoreCase = true) -> {
+                                                ticket.copy(
+                                                    estado = opcionEstado,
+                                                    ultimaVezPausado = ahora
+                                                )
+                                            }
+                                            ticket.estado.equals("Pendiente", ignoreCase = true) && ticket.ultimaVezPausado != null -> {
+                                                val tiempoEnEstaPausa = ahora - ticket.ultimaVezPausado
+                                                ticket.copy(
+                                                    estado = opcionEstado,
+                                                    ultimaVezPausado = null,
+                                                    tiempoPausadoAcumulado = ticket.tiempoPausadoAcumulado + tiempoEnEstaPausa
+                                                )
+                                            }
+                                            else -> {
+                                                ticket.copy(estado = opcionEstado)
+                                            }
+                                        }
+
+                                        onUpdateTicket(ticketActualizado)
                                     }
                                 }
                             )

@@ -24,6 +24,7 @@ import com.techfield.viewmodel.TicketViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.sp
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,8 +60,7 @@ class MainActivityTK : ComponentActivity() {
 fun MainTicketsContent(viewModel: TicketViewModel) {
     val context = LocalContext.current
     var mostrarDialogo by remember { mutableStateOf(false) }
-    var filtroActual by remember { mutableStateOf("Pendiente") }
-
+    var filtroActual by remember { mutableStateOf("Nuevo") }
 
     if (mostrarDialogo) {
         NuevoTicketDialog(
@@ -106,46 +106,104 @@ fun MainTicketsContent(viewModel: TicketViewModel) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            // ALINEACIÓN VISUAL: Metemos los 3 botones juntos dentro del Row
+            // --- REEMPLAZÁ TU FILA DE BOTONES POR ESTA ---
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp) // Reducimos un toque el espacio entre botones para ganar ancho
+            ) {
                 Button(
-                    onClick = { filtroActual = "Pendiente" },
+                    onClick = { filtroActual = "Nuevo" },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp), // Aumentamos la altura del botón para que tenga más presencia
+                    contentPadding = PaddingValues(horizontal = 4.dp), // Reduce el margen interno para que entre el texto
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (filtroActual == "Pendiente") Color(0xFF6C00FF) else Color(0xFFE0E0E0),
-                        contentColor = if (filtroActual == "Pendiente") Color.White else Color.Black
-                    )
+                        containerColor = if (filtroActual == "Nuevo") Color(0xFF6C00FF) else Color(0xFFE0E0E0),
+                        contentColor = if (filtroActual == "Nuevo") Color.White else Color.Black
+                    ),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp) // Bordes un poco más rectos y modernos
                 ) {
-                    Text("PENDIENTES")
+                    Text(
+                        text = "NUEVO",
+                        fontSize = 11.sp, // Achicamos un punto para asegurar que no se corte en pantallas chicas
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
                 }
 
                 Button(
                     onClick = { filtroActual = "En Curso" },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (filtroActual == "En Curso") Color(0xFF6C00FF) else Color(0xFFE0E0E0),
                         contentColor = if (filtroActual == "En Curso") Color.White else Color.Black
-                    )
+                    ),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
                 ) {
-                    Text("EN CURSO")
+                    Text(
+                        text = "EN CURSO",
+                        fontSize = 11.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
+                }
+
+                Button(
+                    onClick = { filtroActual = "Pendiente" },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (filtroActual == "Pendiente") Color(0xFF6C00FF) else Color(0xFFE0E0E0),
+                        contentColor = if (filtroActual == "Pendiente") Color.White else Color.Black
+                    ),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "PENDIENTES",
+                        fontSize = 11.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-
+            // 1. Traemos los tickets del State Flow
             val tickets by viewModel.tickets.collectAsState(initial = emptyList())
-            val ticketsFiltrados = tickets.filter { it.estado == filtroActual }
 
-            ticketsFiltrados.forEach { ticket ->
-                TicketCard(
-                    ticket = ticket,
-                    viewModel = viewModel,
-                    onDelete = { viewModel.eliminarTicket(ticket) },
-                    onUpdateTicket = { ticketEditado ->
-                        viewModel.actualizarTicket(ticketEditado)
-                        filtroActual = ticketEditado.estado
-                    }
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+            // 2. LÓGICA DE FILTRADO CORREGIDA:
+            // Compara directamente el estado del ticket con la pestaña seleccionada
+            val ticketsFiltrados = tickets.filter {
+                it.estado.equals(filtroActual, ignoreCase = true)
+            }
+
+            if (ticketsFiltrados.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
+                ) {
+                    Text("No hay tickets en esta sección.", color = Color.Gray)
+                }
+            } else {
+                ticketsFiltrados.forEach { ticket ->
+                    TicketCard(
+                        ticket = ticket,
+                        viewModel = viewModel,
+                        onDelete = { viewModel.eliminarTicket(ticket) },
+                        onUpdateTicket = { ticketEditado ->
+                            viewModel.actualizarTicket(ticketEditado)
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
@@ -241,7 +299,7 @@ fun NuevoTicketDialog(
                             titulo = titulo,
                             descripcion = descripcion,
                             ubicacion = ubicacion,
-                            estado = "Pendiente",
+                            estado = "Nuevo",
                             prioridad = prioridad
                         )
                     )
@@ -274,7 +332,6 @@ fun TechFieldBottomBar(context: Context) {
         NavigationBarItem(
             selected = false,
             onClick = {
-
                 val intent = Intent(context, ProfileActivity::class.java)
                 context.startActivity(intent)
             },

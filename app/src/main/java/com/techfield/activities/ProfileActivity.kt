@@ -85,7 +85,7 @@ fun ProfileContent(
 ) {
     val listaTickets by viewModel.tickets.collectAsState(initial = emptyList())
     val ticketsEnCurso = listaTickets.count { it.estado == "En Curso" }
-    val totalTickets = listaTickets.size
+    val ticketsFinalizados = listaTickets.count { it.estado.equals("Finalizado", ignoreCase = true) }
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -169,8 +169,8 @@ fun ProfileContent(
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "$totalTickets", fontSize = 26.sp, fontWeight = FontWeight.Bold)
-                        Text("Tickets Totales", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                        Text(text = "$ticketsFinalizados", fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                        Text("Tickets Finalizados", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
                     }
                 }
 
@@ -181,7 +181,7 @@ fun ProfileContent(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(text = "$ticketsEnCurso", color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-                        Text("En Curso Ahora", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodyMedium)
+                        Text("Desempeño", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }

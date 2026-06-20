@@ -9,7 +9,12 @@ data class TicketEntity(
     val titulo: String,
     val descripcion: String,
     val ubicacion: String,
-    val estado: String,
-    val prioridad: String,
-    val fotoUri: String? = null
+    val estado: String, // "Nuevo", "En Curso", "Pendiente", "Finalizado"
+    val prioridad: String, // "Alta", "Media", "Baja"
+    val fotoUri: String? = null,
+
+    // --- NUEVOS CAMPOS PARA EL SLA ---
+    val fechaCreacion: Long = System.currentTimeMillis(),
+    val ultimaVezPausado: Long? = null,
+    val tiempoPausadoAcumulado: Long = 0L
 )
