@@ -1,74 +1,101 @@
 package com.techfield.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.techfield.data.local.ComentarioEntity
 import com.techfield.database.TicketEntity
 import com.techfield.database.UserEntity
+import com.techfield.database.RepuestoEntity
+import com.techfield.data.local.ComentarioEntity
 import com.techfield.repository.TicketRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class TicketViewModel(
     private val repository: TicketRepository
 ) : ViewModel() {
 
+    companion object {
+        private val _usuarioLogueado = MutableStateFlow<UserEntity?>(null)
+        val sharedUsuarioLogueado = _usuarioLogueado.asStateFlow()
+    }
+
+    val usuarioLogueado = sharedUsuarioLogueado
+
     val tickets = repository
         .getAllTickets()
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            emptyList()
-        )
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun setUsuarioLogueado(user: UserEntity?) {
+        _usuarioLogueado.value = user
+    }
 
     fun agregarTicket(ticket: TicketEntity) {
-        viewModelScope.launch {
-            repository.insert(ticket)
-        }
+        viewModelScope.launch { repository.insertarTicket(ticket) }
     }
 
     fun actualizarTicket(ticket: TicketEntity) {
-        viewModelScope.launch {
-            repository.update(ticket)
-        }
+        viewModelScope.launch { repository.update(ticket) }
     }
 
     fun eliminarTicket(ticket: TicketEntity) {
-        viewModelScope.launch {
-            repository.delete(ticket)
-        }
+        viewModelScope.launch { repository.delete(ticket) }
     }
-
 
     suspend fun autenticarUsuario(usuarioName: String): UserEntity? {
         return repository.obtenerUsuario(usuarioName)
     }
 
+    fun obtenerRepuestos(): Flow<List<RepuestoEntity>> {
+        return repository.obtenerTodosLosRepuestos()
+    }
 
+    fun descontarStockRepuesto(id: String, cantidad: Int) {
+        viewModelScope.launch { repository.descontarStock(id, cantidad) }
+    }
+
+    fun obtenerComentarios(ticketId: Int): Flow<List<ComentarioEntity>> {
+        return repository.obtenerComentarios(ticketId)
+    }
+
+    // Función 1: Recibe el objeto completo
+    fun agregarComentario(comentario: ComentarioEntity) {
+        viewModelScope.launch { repository.insertarComentario(comentario) }
+    }
+
+    // CORRECCIÓN: Sobrecarga para compatibilidad con la llamada de TicketCard
     fun agregarComentario(ticketId: Int, texto: String) {
         viewModelScope.launch {
-            if (texto.isNotBlank()) {
-                val nuevoComentario = ComentarioEntity(ticketId = ticketId, texto = texto)
-                repository.insertComentario(nuevoComentario)
-            }
+            val fechaActual = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+            repository.insertarComentario(
+                ComentarioEntity(
+                    ticketId = ticketId,
+                    texto = texto,
+                    fechaHora = fechaActual
+                )
+            )
         }
     }
 
-    fun obtenerComentarios(ticketId: Int): kotlinx.coroutines.flow.Flow<List<ComentarioEntity>> {
-        return repository.getComentariosPorTicket(ticketId)
+    // --- Lógica del SLA (72 horas hábiles) ---
+    fun calcularVencimientoSLA(timestampInicio: Long, limiteHoras: Int = 72): Boolean {
+        if (timestampInicio == 0L) return false
+        return (System.currentTimeMillis() - timestampInicio) > (limiteHoras * 60 * 60 * 1000L)
     }
-}
 
-class TicketViewModelFactory(
-    private val repository: TicketRepository
-) : ViewModelProvider.Factory {
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(
-        modelClass: Class<T>
-    ): T {
-        return TicketViewModel(repository) as T
+    fun obtenerCuentaRegresivaSLA(timestampInicio: Long): String {
+        if (timestampInicio == 0L) return "72:00:00"
+        val tiempoRestante = (72 * 60 * 60 * 1000L) - (System.currentTimeMillis() - timestampInicio)
+        if (tiempoRestante <= 0) return "00:00:00"
+        val horas = tiempoRestante / (1000 * 60 * 60)
+        val minutos = (tiempoRestante % (1000 * 60 * 60)) / (1000 * 60)
+        val segundos = (tiempoRestante % (1000 * 60)) / 1000
+        return String.format("%02d:%02d:%02d", horas, minutos, segundos)
     }
 }

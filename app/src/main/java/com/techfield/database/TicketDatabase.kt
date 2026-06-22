@@ -10,10 +10,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
 @Database(
-    entities = [TicketEntity::class, UserEntity::class, ComentarioEntity::class],
-    version = 3,
+    entities = [TicketEntity::class, UserEntity::class, ComentarioEntity::class, RepuestoEntity::class],
+    version = 4,
     exportSchema = false
 )
 abstract class TicketDatabase : RoomDatabase() {
@@ -42,18 +41,24 @@ abstract class TicketDatabase : RoomDatabase() {
         private class DatabaseCallback(private val context: Context) : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                INSTANCE?.let { database ->
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val userDao = database.ticketDao()
-                        userDao.insertarUsuario(
-                            UserEntity(
-                                usuario = "marcos.tech",
-                                contrasenia = "field2026",
-                                nombreCompleto = "Marcos Rodríguez",
-                                especialidad = "Especialista en Sistemas Críticos"
-                            )
-                        )
-                    }
+                CoroutineScope(Dispatchers.IO).launch {
+                    val database = getDatabase(context)
+                    val userDao = database.ticketDao()
+
+                    // Pre-carga de Usuarios Oficiales
+                    userDao.insertarUsuario(UserEntity("admin.it", "fieldit2026", "Juan", "IT"))
+                    userDao.insertarUsuario(UserEntity("tecnico.field", "fieldtec2026", "Marcos Rodríguez", "Técnico"))
+
+                    // Pre-carga del Stock de Repuestos Ajustado
+                    val listadoRepuestos = listOf(
+                        RepuestoEntity(id = "REP-01", nombre = "Fuente de energía", stock = 6),
+                        RepuestoEntity(id = "REP-02", nombre = "Soporte", stock = 8),
+                        RepuestoEntity(id = "REP-03", nombre = "Tornillos", stock = 20),
+                        RepuestoEntity(id = "REP-04", nombre = "Cable hdmi", stock = 5),
+                        RepuestoEntity(id = "REP-05", nombre = "Cable de red", stock = 3),
+                        RepuestoEntity(id = "REP-06", nombre = "Pendrive SO", stock = 7)
+                    )
+                    listadoRepuestos.forEach { userDao.insertarRepuesto(it) }
                 }
             }
         }

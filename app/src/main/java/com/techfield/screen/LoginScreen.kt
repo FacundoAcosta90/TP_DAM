@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -18,6 +19,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -35,7 +38,6 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-
     var errorCredenciales by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
@@ -47,7 +49,6 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
 
         Box(
             modifier = Modifier
@@ -70,7 +71,6 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-
         OutlinedTextField(
             value = email,
             onValueChange = {
@@ -81,11 +81,15 @@ fun LoginScreen(
             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
             isError = errorCredenciales,
             shape = RoundedCornerShape(50),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                capitalization = KeyboardCapitalization.None,
+                autoCorrect = false
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-
 
         OutlinedTextField(
             value = password,
@@ -106,7 +110,6 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-
         if (errorCredenciales) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -118,17 +121,16 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-
         Button(
             onClick = {
                 Log.d("LOGIN", "CLICK BOTON")
 
-
                 coroutineScope.launch {
-                    val usuarioDb = viewModel.autenticarUsuario(email)
+                    val usuarioDb = viewModel.autenticarUsuario(email.trim())
 
-                    if (usuarioDb != null && usuarioDb.contrasenia == password) {
+                    if (usuarioDb != null && usuarioDb.contrasenia == password.trim()) {
                         Log.d("LOGIN", "LOGIN OK VIA ROOM")
+                        viewModel.setUsuarioLogueado(usuarioDb)
                         onLoginSuccess()
                     } else {
                         Log.d("LOGIN", "LOGIN FAIL VIA ROOM")

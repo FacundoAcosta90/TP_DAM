@@ -10,10 +10,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.techfield.database.TicketDatabase
@@ -21,18 +24,10 @@ import com.techfield.database.TicketEntity
 import com.techfield.repository.TicketRepository
 import com.techfield.ui.components.TicketCard
 import com.techfield.viewmodel.TicketViewModel
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.sp
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 class MainActivityTK : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val database = TicketDatabase.Companion.getDatabase(this)
         val repository = TicketRepository(database.ticketDao())
 
@@ -54,13 +49,22 @@ class MainActivityTK : ComponentActivity() {
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTicketsContent(viewModel: TicketViewModel) {
     val context = LocalContext.current
     var mostrarDialogo by remember { mutableStateOf(false) }
-    var filtroActual by remember { mutableStateOf("Nuevo") }
+
+    // Al quitar el "initial = null", Compose toma inmediatamente el usuario logueado en Room
+    val usuario by viewModel.usuarioLogueado.collectAsState()
+    val esIT = usuario?.especialidad?.equals("IT", ignoreCase = true) == true
+
+    // El filtro se adapta dinámicamente según el rol detectado al inicio
+    var filtroActual by remember { mutableStateOf(if (esIT) "Nuevo" else "Pendiente") }
+
+    LaunchedEffect(esIT) {
+        filtroActual = if (esIT) "Nuevo" else "Pendiente"
+    }
 
     if (mostrarDialogo) {
         NuevoTicketDialog(
@@ -72,11 +76,13 @@ fun MainTicketsContent(viewModel: TicketViewModel) {
     Scaffold(
         containerColor = Color(0xFFF7F7F7),
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { mostrarDialogo = true },
-                containerColor = Color(0xFF6C00FF)
-            ) {
-                Text("+", color = Color.White, style = MaterialTheme.typography.titleLarge)
+            if (esIT) {
+                FloatingActionButton(
+                    onClick = { mostrarDialogo = true },
+                    containerColor = Color(0xFF6C00FF)
+                ) {
+                    Text("+", color = Color.White, style = MaterialTheme.typography.titleLarge)
+                }
             }
         },
         bottomBar = {
@@ -100,95 +106,71 @@ fun MainTicketsContent(viewModel: TicketViewModel) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Gestione sus tareas de campo asignadas y supervise el progreso en tiempo real.",
+                text = if (esIT) "Panel de supervisión y alta de dispositivos de transmisión." else "Gestione sus tareas de campo asignadas y supervise el progreso en tiempo real.",
                 color = Color.Gray
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ALINEACIÓN VISUAL: Metemos los 3 botones juntos dentro del Row
-            // --- REEMPLAZÁ TU FILA DE BOTONES POR ESTA ---
+            // RENDERIZADO DE PESTAÑAS CORREGIDO SEGÚN EL ROL
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp) // Reducimos un toque el espacio entre botones para ganar ancho
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Button(
-                    onClick = { filtroActual = "Nuevo" },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp), // Aumentamos la altura del botón para que tenga más presencia
-                    contentPadding = PaddingValues(horizontal = 4.dp), // Reduce el margen interno para que entre el texto
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (filtroActual == "Nuevo") Color(0xFF6C00FF) else Color(0xFFE0E0E0),
-                        contentColor = if (filtroActual == "Nuevo") Color.White else Color.Black
-                    ),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp) // Bordes un poco más rectos y modernos
-                ) {
-                    Text(
-                        text = "NUEVO",
-                        fontSize = 11.sp, // Achicamos un punto para asegurar que no se corte en pantallas chicas
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                    )
-                }
-
-                Button(
-                    onClick = { filtroActual = "En Curso" },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    contentPadding = PaddingValues(horizontal = 4.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (filtroActual == "En Curso") Color(0xFF6C00FF) else Color(0xFFE0E0E0),
-                        contentColor = if (filtroActual == "En Curso") Color.White else Color.Black
-                    ),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "EN CURSO",
-                        fontSize = 11.sp,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                    )
-                }
-
-                Button(
-                    onClick = { filtroActual = "Pendiente" },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    contentPadding = PaddingValues(horizontal = 4.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (filtroActual == "Pendiente") Color(0xFF6C00FF) else Color(0xFFE0E0E0),
-                        contentColor = if (filtroActual == "Pendiente") Color.White else Color.Black
-                    ),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "PENDIENTES",
-                        fontSize = 11.sp,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                    )
+                if (esIT) {
+                    // Pestañas estrictas para el usuario IT: NUEVO y FINALIZADOS
+                    listOf("Nuevo", "Finalizados").forEach { pestaña ->
+                        Button(
+                            onClick = { filtroActual = pestaña },
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (filtroActual == pestaña) Color(0xFF6C00FF) else Color(0xFFE0E0E0),
+                                contentColor = if (filtroActual == pestaña) Color.White else Color.Black
+                            ),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                        ) {
+                            Text(pestaña.uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                } else {
+                    // Pestañas de trabajo para el personal Técnico
+                    listOf("Pendiente", "En Curso", "Finalizado").forEach { pestaña ->
+                        Button(
+                            onClick = { filtroActual = pestaña },
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (filtroActual == pestaña) Color(0xFF6C00FF) else Color(0xFFE0E0E0),
+                                contentColor = if (filtroActual == pestaña) Color.White else Color.Black
+                            ),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = if (pestaña == "Finalizado") "FINALIZADOS" else pestaña.uppercase(),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 1. Traemos los tickets del State Flow
             val tickets by viewModel.tickets.collectAsState(initial = emptyList())
 
-            // 2. LÓGICA DE FILTRADO CORREGIDA:
-            // Compara directamente el estado del ticket con la pestaña seleccionada
-            val ticketsFiltrados = tickets.filter {
-                it.estado.equals(filtroActual, ignoreCase = true)
+            val ticketsFiltrados = tickets.filter { ticket ->
+                val estadoTicket = ticket.estado.uppercase()
+                if (esIT) {
+                    if (filtroActual == "Nuevo") estadoTicket != "FINALIZADO" else estadoTicket == "FINALIZADO"
+                } else {
+                    estadoTicket == filtroActual.uppercase()
+                }
             }
 
             if (ticketsFiltrados.isEmpty()) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 32.dp),
-                    contentAlignment = androidx.compose.ui.Alignment.Center
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text("No hay tickets en esta sección.", color = Color.Gray)
                 }
@@ -209,20 +191,26 @@ fun MainTicketsContent(viewModel: TicketViewModel) {
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NuevoTicketDialog(
     viewModel: TicketViewModel,
     onDismiss: () -> Unit
 ) {
-    var titulo by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
-    var ubicacion by remember { mutableStateOf("") }
-    var prioridad by remember { mutableStateOf("Media") }
-    var expanded by remember { mutableStateOf(false) }
+    val tituloFijo = "Chromecast"
+    val listadoFallas = listOf("No enciende", "Presenta lentitud", "No muestra contenido", "No conecta a la red")
 
-    val esFormularioValido = titulo.isNotBlank() && ubicacion.isNotBlank()
+    var fallaSeleccionada by remember { mutableStateOf(listadoFallas[0]) }
+    var dropdownExpandido by remember { mutableStateOf(false) }
+    var ubicacion by remember { mutableStateOf("") }
+
+    // Lógica automática para determinar la prioridad según la falla elegida
+    val prioridadCalculada = when (fallaSeleccionada) {
+        "No enciende", "No muestra contenido" -> "Alta"
+        "No conecta a la red" -> "Media"
+        "Presenta lentitud" -> "Baja"
+        else -> "Media"
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -230,65 +218,64 @@ fun NuevoTicketDialog(
         text = {
             Column {
                 OutlinedTextField(
-                    value = titulo,
-                    onValueChange = { titulo = it },
-                    label = { Text("Título *") },
-                    isError = titulo.isBlank() && descripcion.isNotBlank(),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = descripcion,
-                    onValueChange = { descripcion = it },
-                    label = { Text("Descripción") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = ubicacion,
-                    onValueChange = { ubicacion = it },
-                    label = { Text("Ubicación (Planta / Cliente) *") },
-                    placeholder = { Text("Ej: Planta Piso 2 o Cliente Central") },
+                    value = tituloFijo,
+                    onValueChange = {},
+                    label = { Text("Título") },
+                    enabled = false,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // Menú desplegable para la selección controlada de fallas
                 ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded }
+                    expanded = dropdownExpandido,
+                    onExpandedChange = { dropdownExpandido = !dropdownExpandido }
                 ) {
                     OutlinedTextField(
-                        value = prioridad,
+                        value = fallaSeleccionada,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Prioridad") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                        label = { Text("Descripción (Falla) *") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpandido) },
                         modifier = Modifier.fillMaxWidth().menuAnchor()
                     )
 
                     ExposedDropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        expanded = dropdownExpandido,
+                        onDismissRequest = { dropdownExpandido = false }
                     ) {
-                        DropdownMenuItem(text = { Text("Alta") }, onClick = { prioridad = "Alta"; expanded = false })
-                        DropdownMenuItem(text = { Text("Media") }, onClick = { prioridad = "Media"; expanded = false })
-                        DropdownMenuItem(text = { Text("Baja") }, onClick = { prioridad = "Baja"; expanded = false })
+                        listadoFallas.forEach { falla ->
+                            DropdownMenuItem(
+                                text = { Text(falla) },
+                                onClick = {
+                                    fallaSeleccionada = falla
+                                    dropdownExpandido = false
+                                }
+                            )
+                        }
                     }
                 }
 
-                if (!esFormularioValido) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "* Los campos Título y Ubicación son obligatorios.",
-                        color = Color.Gray,
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = ubicacion,
+                    onValueChange = { ubicacion = it },
+                    label = { Text("Ubicación (Planta / Oficina) *") },
+                    placeholder = { Text("Ej: Piso 3 - Sala de Reuniones") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = prioridadCalculada,
+                    onValueChange = {},
+                    label = { Text("Prioridad Asignada Automáticamente") },
+                    enabled = false,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
@@ -296,16 +283,16 @@ fun NuevoTicketDialog(
                 onClick = {
                     viewModel.agregarTicket(
                         TicketEntity(
-                            titulo = titulo,
-                            descripcion = descripcion,
+                            titulo = tituloFijo,
+                            descripcion = fallaSeleccionada,
                             ubicacion = ubicacion,
-                            estado = "Nuevo",
-                            prioridad = prioridad
+                            estado = "Pendiente",
+                            prioridad = prioridadCalculada
                         )
                     )
                     onDismiss()
                 },
-                enabled = esFormularioValido
+                enabled = ubicacion.isNotBlank()
             ) {
                 Text("Guardar")
             }
@@ -318,14 +305,13 @@ fun NuevoTicketDialog(
     )
 }
 
-
 @Composable
 fun TechFieldBottomBar(context: Context) {
     NavigationBar {
         NavigationBarItem(
             selected = true,
             onClick = {},
-            icon = { Text("🎟️") },
+            icon = { Text("🎫") },
             label = { Text("Tickets") }
         )
 

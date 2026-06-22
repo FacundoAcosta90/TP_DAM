@@ -6,8 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,59 +20,106 @@ fun TicketsScreen(
     navController: NavController,
     viewModel: TicketViewModel
 ) {
-    // 1. Traemos todos los tickets de la base de datos
+    // 1. Traemos todos los tickets y los datos del usuario logueado
     val todosLosTickets = viewModel.tickets.collectAsState().value
+    val usuario = viewModel.usuarioLogueado.collectAsState().value
 
-    // 2. Filtramos la lista para quedarnos SOLO con los que NO están finalizados
-    val ticketsActivos = todosLosTickets.filter { it.estado.uppercase() != "FINALIZADO" }
+    // 2. Identificamos el rol según la especialidad (Ignoramos mayúsculas/minúsculas)
+    val esIT = usuario?.especialidad?.equals("IT", ignoreCase = true) == true
+
+    // 3. Definimos las pestañas dinámicamente según el rol
+    var seccionSeleccionada by remember { mutableStateOf(0) }
+    val pestañas = if (esIT) {
+        listOf("Activos", "Finalizados")
+    } else {
+        listOf("Pendientes", "En Curso", "Finalizados")
+    }
+
+    // Reiniciar la pestaña seleccionada si cambia el usuario por seguridad
+    LaunchedEffect(usuario) {
+        seccionSeleccionada = 0
+    }
+
+    // 4. Filtramos los tickets de acuerdo al rol y a la pestaña activa
+    val ticketsFiltrados = todosLosTickets.filter { ticket ->
+        val estadoTicket = ticket.estado.uppercase()
+        if (esIT) {
+            if (seccionSeleccionada == 0) {
+                estadoTicket != "FINALIZADO" // Activos (Pendiente o En Curso)
+            } else {
+                estadoTicket == "FINALIZADO" // Finalizados
+            }
+        } else {
+            when (seccionSeleccionada) {
+                0 -> estadoTicket == "PENDIENTE"
+                1 -> estadoTicket == "EN CURSO"
+                else -> estadoTicket == "FINALIZADO"
+            }
+        }
+    }
 
     Scaffold(
+        // El botón Flotante (+) SOLO se dibuja si el usuario es de IT
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate("addTicket")
+            if (esIT) {
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate("addTicket")
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Agregar Ticket"
+                    )
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar"
-                )
             }
         }
     ) { padding ->
-
-        // 3. Si la lista filtrada está vacía, mostramos el mensaje de que no hay pendientes
-        if (ticketsActivos.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("No tienes tareas pendientes por el momento.", color = Color.Gray)
-            }
-        } else {
-            // 4. Se eliminó la tarjeta del resumen superior.
-            // El LazyColumn ahora usa directamente "ticketsActivos"
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                items(ticketsActivos) { ticket ->
-                    TicketCard(
-                        ticket = ticket,
-                        viewModel = viewModel,
-                        onDelete = {
-                            viewModel.eliminarTicket(ticket)
-                        },
-                        onUpdateTicket = { ticketEditado ->
-                            viewModel.actualizarTicket(ticketEditado)
-                        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            // Barra de pestañas Material 3
+            TabRow(selectedTabIndex = seccionSeleccionada) {
+                pestañas.forEachIndexed { indice, titulo ->
+                    Tab(
+                        selected = seccionSeleccionada == indice,
+                        onClick = { seccionSeleccionada = indice },
+                        text = { Text(titulo) }
                     )
+                }
+            }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+            // Listado de Tickets Filtrados
+            if (ticketsFiltrados.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No hay tickets en esta sección.", color = Color.Gray)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    items(ticketsFiltrados) { ticket ->
+                        TicketCard(
+                            ticket = ticket,
+                            viewModel = viewModel,
+                            onDelete = {
+                                viewModel.eliminarTicket(ticket)
+                            },
+                            onUpdateTicket = { ticketEditado ->
+                                viewModel.actualizarTicket(ticketEditado)
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
             }
         }

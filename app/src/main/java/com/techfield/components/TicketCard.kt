@@ -83,7 +83,7 @@ fun TicketCard(
     }
 
     // ======================================================================
-    // LOGICA DEL SLA - SE MOVIÓ AQUÍ ARRIBA (AFUERA DE LOS DIÁLOGOS)
+    // LOGICA DEL SLA - CONSERVADA DE TU IMPLEMENTACIÓN
     // ======================================================================
     val tiempoLimiteSLA = when (ticket.prioridad.uppercase()) {
         "ALTA" -> 2 * 60 * 60 * 1000L      // 2 Horas
@@ -162,10 +162,9 @@ fun TicketCard(
                     Text(text = "📍 Ubicación: ${ticket.ubicacion}", color = Color.Gray)
                     Text(text = "⚡ Estado actual: ${ticket.estado}", color = Color.Gray)
 
-                    // Mostramos el SLA también dentro del Detalle
                     Text(text = "⏳ SLA Activo: $tiempoTranscurridoTexto", color = Color.Gray)
 
-                    Divider(modifier = Modifier.padding(vertical = 24.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
 
                     Text(text = "Evidencias fotográficas", style = MaterialTheme.typography.titleLarge)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -213,7 +212,7 @@ fun TicketCard(
                         }
                     }
 
-                    Divider(modifier = Modifier.padding(vertical = 24.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
 
                     Text(text = "📜 Bitácora de Notas", style = MaterialTheme.typography.titleLarge)
                     Spacer(modifier = Modifier.height(12.dp))
@@ -278,7 +277,6 @@ fun TicketCard(
         }
     }
 
-    // CARD PRINCIPAL
     Card(
         onClick = { verDetalle = true },
         modifier = Modifier.fillMaxWidth(),
@@ -301,7 +299,6 @@ fun TicketCard(
                 }
             )
 
-            // --- VISTA DEL SLA AGREGADA EN LA TARJETA PRINCIPAL ---
             Spacer(modifier = Modifier.height(12.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -321,7 +318,6 @@ fun TicketCard(
                     )
                 }
             }
-            // -----------------------------------------------------
 
             Spacer(modifier = Modifier.height(20.dp))
 

@@ -1,6 +1,5 @@
 package com.techfield.activities
 
-
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -32,8 +31,6 @@ import com.techfield.viewmodel.TicketViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-
-
 class ProfileActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +55,7 @@ class ProfileActivity : ComponentActivity() {
                 ProfileContent(
                     viewModel = viewModel,
                     onCerrarSesion = {
+                        viewModel.setUsuarioLogueado(null)
                         val intent = Intent(this@ProfileActivity, MainActivity::class.java).apply {
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         }
@@ -75,7 +73,6 @@ class ProfileActivity : ComponentActivity() {
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileContent(
@@ -83,10 +80,15 @@ fun ProfileContent(
     onCerrarSesion: () -> Unit,
     onIrATickets: () -> Unit
 ) {
+    // Escucha al usuario real logueado en el sistema
+    val usuarioLogueado by viewModel.usuarioLogueado.collectAsState(initial = null)
+
     val listaTickets by viewModel.tickets.collectAsState(initial = emptyList())
     val ticketsEnCurso = listaTickets.count { it.estado == "En Curso" }
     val ticketsFinalizados = listaTickets.count { it.estado.equals("Finalizado", ignoreCase = true) }
     val scrollState = rememberScrollState()
+
+    val esIT = usuarioLogueado?.especialidad?.equals("IT", ignoreCase = true) == true
 
     Scaffold(
         containerColor = Color(0xFFF7F7F7),
@@ -126,7 +128,6 @@ fun ProfileContent(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-
             Box(contentAlignment = Alignment.BottomEnd) {
                 Box(
                     modifier = Modifier
@@ -148,19 +149,33 @@ fun ProfileContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Marcos Rodríguez", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            Text(text = "Especialista en Sistemas Críticos", color = Color.Gray, style = MaterialTheme.typography.bodyMedium)
+            // Datos Dinámicos del Usuario
+            Text(
+                text = usuarioLogueado?.nombreCompleto ?: "Cargando...",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = usuarioLogueado?.especialidad ?: "",
+                color = Color.Gray,
+                style = MaterialTheme.typography.bodyMedium
+            )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             SuggestionChip(
                 onClick = {},
-                label = { Text("NIVEL SENIOR", fontWeight = FontWeight.Bold, color = Color(0xFF6C00FF)) },
+                label = {
+                    Text(
+                        text = if (esIT) "ADMINISTRADOR IT" else "TÉCNICO DE CAMPO",
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF6C00FF)
+                    )
+                },
                 colors = SuggestionChipDefaults.suggestionChipColors(containerColor = Color(0xFFF0E6FF))
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
                 Card(
@@ -188,11 +203,9 @@ fun ProfileContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-
             PanelDeControlAjustes()
 
             Spacer(modifier = Modifier.height(32.dp))
-
 
             Button(
                 onClick = onCerrarSesion,
@@ -202,14 +215,16 @@ fun ProfileContent(
             ) {
                 Icon(Icons.Default.ExitToApp, null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Cerrar Sesión del Técnico", fontWeight = FontWeight.Bold)
+                Text(
+                    text = if (esIT) "Cerrar Sesión de IT" else "Cerrar Sesión del Técnico",
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
-
 
 @Composable
 fun PanelDeControlAjustes() {
