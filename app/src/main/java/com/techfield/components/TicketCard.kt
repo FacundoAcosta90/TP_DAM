@@ -157,9 +157,6 @@ fun TicketCard(
     }
 
 
-// ======================================================================
-    // ======================================================================
-
     if (mostrarConfirmacion) {
         AlertDialog(
             onDismissRequest = { mostrarConfirmacion = false },

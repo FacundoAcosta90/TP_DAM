@@ -16,7 +16,7 @@ fun ProfileScreen(
     viewModel: TicketViewModel,
     onLogout: () -> Unit
 ) {
-    // Leemos el usuario logueado actualmente en el sistema
+
     val usuario = viewModel.usuarioLogueado.collectAsState().value
 
     Column(
@@ -34,7 +34,7 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Muestra el nombre real (Juan o Marcos)
+
         Text(
             text = "Usuario: ${usuario?.nombreCompleto ?: "No identificado"}",
             fontSize = 20.sp,
@@ -43,7 +43,7 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Muestra la especialidad/rol (IT o Técnico)
+
         Text(
             text = "Área: ${usuario?.especialidad ?: "Sin especificar"}",
             fontSize = 16.sp,
@@ -52,11 +52,11 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(40.dp))
 
-        // Botón de cierre de sesión dinámico
+
         Button(
             onClick = {
-                viewModel.setUsuarioLogueado(null) // Limpiamos la sesión en el ViewModel
-                onLogout() // Volvemos al Login
+                viewModel.setUsuarioLogueado(null)
+                onLogout()
             },
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
             modifier = Modifier.fillMaxWidth().height(50.dp)

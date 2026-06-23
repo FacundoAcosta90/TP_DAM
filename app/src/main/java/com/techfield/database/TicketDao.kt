@@ -7,7 +7,7 @@ import com.techfield.data.local.ComentarioEntity
 @Dao
 interface TicketDao {
 
-    // --- Métodos de Tickets ---
+
     @Query("SELECT * FROM tickets ORDER BY id DESC")
     fun getAllTickets(): Flow<List<TicketEntity>>
 
@@ -20,14 +20,14 @@ interface TicketDao {
     @Delete
     suspend fun delete(ticket: TicketEntity)
 
-    // --- Métodos de Usuarios ---
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarUsuario(usuario: UserEntity)
 
     @Query("SELECT * FROM users WHERE usuario = :usuarioName LIMIT 1")
     suspend fun obtenerUsuario(usuarioName: String): UserEntity?
 
-    // --- Métodos de Repuestos (Insumos) ---
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarRepuesto(repuesto: RepuestoEntity)
 
@@ -37,7 +37,7 @@ interface TicketDao {
     @Query("UPDATE repuestos SET stock = stock - :cantidad WHERE id = :id")
     suspend fun descontarStock(id: String, cantidad: Int)
 
-    // --- Métodos de Comentarios ---
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarComentario(comentario: ComentarioEntity)
 

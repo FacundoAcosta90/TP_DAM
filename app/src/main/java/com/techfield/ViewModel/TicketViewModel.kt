@@ -64,12 +64,12 @@ class TicketViewModel(
         return repository.obtenerComentarios(ticketId)
     }
 
-    // Función 1: Recibe el objeto completo
+
     fun agregarComentario(comentario: ComentarioEntity) {
         viewModelScope.launch { repository.insertarComentario(comentario) }
     }
 
-    // CORRECCIÓN: Sobrecarga para compatibilidad con la llamada de TicketCard
+
     fun agregarComentario(ticketId: Int, texto: String) {
         viewModelScope.launch {
             val fechaActual = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
@@ -83,7 +83,7 @@ class TicketViewModel(
         }
     }
 
-    // --- Lógica del SLA (72 horas hábiles) ---
+
     fun calcularVencimientoSLA(timestampInicio: Long, limiteHoras: Int = 72): Boolean {
         if (timestampInicio == 0L) return false
         return (System.currentTimeMillis() - timestampInicio) > (limiteHoras * 60 * 60 * 1000L)

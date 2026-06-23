@@ -20,14 +20,12 @@ fun TicketsScreen(
     navController: NavController,
     viewModel: TicketViewModel
 ) {
-    // 1. Traemos todos los tickets y los datos del usuario logueado
+
     val todosLosTickets = viewModel.tickets.collectAsState().value
     val usuario = viewModel.usuarioLogueado.collectAsState().value
 
-    // 2. Identificamos el rol según la especialidad (Ignoramos mayúsculas/minúsculas)
     val esIT = usuario?.especialidad?.equals("IT", ignoreCase = true) == true
 
-    // 3. Definimos las pestañas dinámicamente según el rol
     var seccionSeleccionada by remember { mutableStateOf(0) }
     val pestañas = if (esIT) {
         listOf("Activos", "Finalizados")
@@ -35,19 +33,19 @@ fun TicketsScreen(
         listOf("Pendientes", "En Curso", "Finalizados")
     }
 
-    // Reiniciar la pestaña seleccionada si cambia el usuario por seguridad
+
     LaunchedEffect(usuario) {
         seccionSeleccionada = 0
     }
 
-    // 4. Filtramos los tickets de acuerdo al rol y a la pestaña activa
+
     val ticketsFiltrados = todosLosTickets.filter { ticket ->
         val estadoTicket = ticket.estado.uppercase()
         if (esIT) {
             if (seccionSeleccionada == 0) {
-                estadoTicket != "FINALIZADO" // Activos (Pendiente o En Curso)
+                estadoTicket != "FINALIZADO"
             } else {
-                estadoTicket == "FINALIZADO" // Finalizados
+                estadoTicket == "FINALIZADO"
             }
         } else {
             when (seccionSeleccionada) {
@@ -59,7 +57,7 @@ fun TicketsScreen(
     }
 
     Scaffold(
-        // El botón Flotante (+) SOLO se dibuja si el usuario es de IT
+
         floatingActionButton = {
             if (esIT) {
                 FloatingActionButton(
@@ -80,7 +78,7 @@ fun TicketsScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Barra de pestañas Material 3
+
             TabRow(selectedTabIndex = seccionSeleccionada) {
                 pestañas.forEachIndexed { indice, titulo ->
                     Tab(
@@ -91,7 +89,7 @@ fun TicketsScreen(
                 }
             }
 
-            // Listado de Tickets Filtrados
+
             if (ticketsFiltrados.isEmpty()) {
                 Box(
                     modifier = Modifier

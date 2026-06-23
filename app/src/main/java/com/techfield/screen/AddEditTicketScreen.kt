@@ -15,17 +15,17 @@ fun AddEditTicketScreen(
     navController: NavController,
     viewModel: TicketViewModel
 ) {
-    // El título queda fijo según el requerimiento
+
     val tituloFijo = "Chromecast"
 
-    // Lista de fallas para el menú desplegable
+
     val listadoFallas = listOf("No enciende", "Presenta lentitud", "No muestra contenido", "No conecta a la red")
 
     var fayaSeleccionada by remember { mutableStateOf(listadoFallas[0]) }
     var menuDesplegableExpandido by remember { mutableStateOf(false) }
     var ubicacion by remember { mutableStateOf("") }
 
-    // Lógica condicional automática para la prioridad según la falla seleccionada
+
     val prioridadAutomatica = when (fayaSeleccionada) {
         "No enciende", "No muestra contenido" -> "Alta"
         "No conecta a la red" -> "Media"
@@ -38,7 +38,7 @@ fun AddEditTicketScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Campo de Título (Deshabilitado/Lectura para que quede fijo)
+
         OutlinedTextField(
             value = tituloFijo,
             onValueChange = {},
@@ -49,7 +49,7 @@ fun AddEditTicketScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Menú Desplegable Oficial Material 3 para las Fallas (Descripción)
+
         ExposedDropdownMenuBox(
             expanded = menuDesplegableExpandido,
             onExpandedChange = { menuDesplegableExpandido = !menuDesplegableExpandido }
@@ -82,7 +82,7 @@ fun AddEditTicketScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Campo de Ubicación (Ingreso manual)
+
         OutlinedTextField(
             value = ubicacion,
             onValueChange = { ubicacion = it },
@@ -92,7 +92,7 @@ fun AddEditTicketScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Campo de Prioridad Informativo (Muestra el cálculo automático en tiempo real)
+
         OutlinedTextField(
             value = prioridadAutomatica,
             onValueChange = {},
@@ -103,10 +103,10 @@ fun AddEditTicketScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Botón Guardar
+
         Button(
             modifier = Modifier.fillMaxWidth(),
-            enabled = ubicacion.isNotBlank(), // Evita guardar si la ubicación está vacía
+            enabled = ubicacion.isNotBlank(),
             onClick = {
                 val ahora = System.currentTimeMillis()
 

@@ -38,7 +38,7 @@ fun TicketDetailScreen(
     var repuestoSeleccionado by remember { mutableStateOf<RepuestoEntity?>(null) }
     var menuRepuestosExpandido by remember { mutableStateOf(false) }
 
-    // Launchers para la carga de evidencias en estado Finalizado
+
     val launcherGaleria = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->

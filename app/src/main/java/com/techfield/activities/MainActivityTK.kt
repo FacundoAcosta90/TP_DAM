@@ -55,11 +55,11 @@ fun MainTicketsContent(viewModel: TicketViewModel) {
     val context = LocalContext.current
     var mostrarDialogo by remember { mutableStateOf(false) }
 
-    // Al quitar el "initial = null", Compose toma inmediatamente el usuario logueado en Room
+
     val usuario by viewModel.usuarioLogueado.collectAsState()
     val esIT = usuario?.especialidad?.equals("IT", ignoreCase = true) == true
 
-    // El filtro se adapta dinámicamente según el rol detectado al inicio
+
     var filtroActual by remember { mutableStateOf(if (esIT) "Nuevo" else "Pendiente") }
 
     LaunchedEffect(esIT) {
@@ -112,13 +112,13 @@ fun MainTicketsContent(viewModel: TicketViewModel) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // RENDERIZADO DE PESTAÑAS CORREGIDO SEGÚN EL ROL
+
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 if (esIT) {
-                    // Pestañas estrictas para el usuario IT: NUEVO y FINALIZADOS
+                    // Pestañas  para el usuario IT: NUEVO y FINALIZADOS
                     listOf("Nuevo", "Finalizados").forEach { pestaña ->
                         Button(
                             onClick = { filtroActual = pestaña },
@@ -204,7 +204,7 @@ fun NuevoTicketDialog(
     var dropdownExpandido by remember { mutableStateOf(false) }
     var ubicacion by remember { mutableStateOf("") }
 
-    // Lógica automática para determinar la prioridad según la falla elegida
+
     val prioridadCalculada = when (fallaSeleccionada) {
         "No enciende", "No muestra contenido" -> "Alta"
         "No conecta a la red" -> "Media"
@@ -227,7 +227,7 @@ fun NuevoTicketDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Menú desplegable para la selección controlada de fallas
+
                 ExposedDropdownMenuBox(
                     expanded = dropdownExpandido,
                     onExpandedChange = { dropdownExpandido = !dropdownExpandido }
