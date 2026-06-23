@@ -80,14 +80,11 @@ fun ProfileContent(
     onCerrarSesion: () -> Unit,
     onIrATickets: () -> Unit
 ) {
-    // Escucha al usuario real logueado en el sistema
     val usuarioLogueado by viewModel.usuarioLogueado.collectAsState(initial = null)
-
     val listaTickets by viewModel.tickets.collectAsState(initial = emptyList())
     val ticketsEnCurso = listaTickets.count { it.estado == "En Curso" }
     val ticketsFinalizados = listaTickets.count { it.estado.equals("Finalizado", ignoreCase = true) }
     val scrollState = rememberScrollState()
-
     val esIT = usuarioLogueado?.especialidad?.equals("IT", ignoreCase = true) == true
 
     Scaffold(
@@ -149,7 +146,6 @@ fun ProfileContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Datos Dinámicos del Usuario
             Text(
                 text = usuarioLogueado?.nombreCompleto ?: "Cargando...",
                 fontSize = 24.sp,

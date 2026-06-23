@@ -1,23 +1,29 @@
-dependencies {
-    // Jetpack Compose
-    implementation("androidx.compose.material3:material3:1.2.1")
-    implementation("androidx.compose.material:material-icons-extended:1.7.0")
+// Compose BOM (OBLIGATORIO)
+implementation(platform("androidx.compose:compose-bom:2024.10.00"))
 
-    // Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.0")
+// Compose
+implementation("androidx.compose.ui:ui")
+implementation("androidx.compose.material3:material3")
+implementation("androidx.compose.material:material-icons-extended")
+implementation("androidx.compose.ui:ui-tooling-preview")
 
-    // Lifecycle + ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+// Navigation
+implementation("androidx.navigation:navigation-compose:2.7.7")
 
-    // Room Database
-    implementation("androidx.room:room-runtime:2.7.2")
-    implementation("androidx.room:room-ktx:2.7.2")
-    ksp("androidx.room:room-compiler:2.7.2")
+// Lifecycle
+implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
-    // CameraX
-    implementation("androidx.camera:camera-camera2:1.4.2")
-    implementation("androidx.camera:camera-lifecycle:1.4.2")
-    implementation("androidx.camera:camera-view:1.4.2")
-    implementation(libs.coil.compose)
-}
+// Room
+implementation("androidx.room:room-runtime:2.7.2")
+implementation("androidx.room:room-ktx:2.7.2")
+ksp("androidx.room:room-compiler:2.7.2")
+
+// CameraX
+implementation("androidx.camera:camera-camera2:1.4.2")
+implementation("androidx.camera:camera-lifecycle:1.4.2")
+implementation("androidx.camera:camera-view:1.4.2")
+
+// Coil
+implementation("io.coil-kt:coil-compose:2.6.0")
+
 

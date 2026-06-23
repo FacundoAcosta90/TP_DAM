@@ -1,5 +1,6 @@
 package com.techfield.ui.components
 
+
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.Image
+import androidx.compose.material3.Text
 import androidx.compose.runtime.collectAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,20 +84,24 @@ fun TicketCard(
         }
     }
 
-    // ======================================================================
-    // LOGICA DEL SLA - CONSERVADA DE TU IMPLEMENTACIÓN
-    // ======================================================================
-    val tiempoLimiteSLA = when (ticket.prioridad.uppercase()) {
-        "ALTA" -> 2 * 60 * 60 * 1000L      // 2 Horas
-        "MEDIA" -> 8 * 60 * 60 * 1000L     // 8 Horas
-        "BAJA" -> 24 * 60 * 60 * 1000L     // 24 Horas
+    val prioridadNormalizada = ticket.prioridad.trim().lowercase()
+
+    val tiempoLimiteSLA = when (prioridadNormalizada) {
+        "alta" -> 2 * 60 * 60 * 1000L
+        "media" -> 8 * 60 * 60 * 1000L
+        "baja" -> 24 * 60 * 60 * 1000L
         else -> 8 * 60 * 60 * 1000L
     }
 
     var tiempoTranscurridoTexto by remember { mutableStateOf("00:00:00") }
     var estaVencido by remember { mutableStateOf(false) }
 
-    LaunchedEffect(ticket.estado, ticket.tiempoPausadoAcumulado, ticket.ultimaVezPausado) {
+    LaunchedEffect(
+        ticket.estado,
+        ticket.tiempoPausadoAcumulado,
+        ticket.ultimaVezPausado
+    ) {
+
         if (ticket.estado.uppercase() == "FINALIZADO") {
             tiempoTranscurridoTexto = "Ticket Terminado"
             estaVencido = false
@@ -103,22 +109,55 @@ fun TicketCard(
         }
 
         while (true) {
+
+
             val ahora = System.currentTimeMillis()
-            val tiempoFinalParaCalculo = ticket.ultimaVezPausado ?: ahora
-            var tiempoActivoNeto = (tiempoFinalParaCalculo - ticket.fechaCreacion) - ticket.tiempoPausadoAcumulado
-            if (tiempoActivoNeto < 0) tiempoActivoNeto = 0
 
-            estaVencido = tiempoActivoNeto > tiempoLimiteSLA
+            val tiempoFinalParaCalculo =
+                if (ticket.estado.equals("Pendiente", ignoreCase = true)) {
+                    ticket.ultimaVezPausado ?: ahora
+                } else {
+                    ahora
+                }
 
-            val segundosTotales = tiempoActivoNeto / 1000
-            val horas = segundosTotales / 3600
-            val minutos = (segundosTotales % 3600) / 60
-            val segundos = segundosTotales % 60
-            tiempoTranscurridoTexto = String.format("%02d:%02d:%02d", horas, minutos, segundos)
+            var tiempoActivoNeto =
+                (tiempoFinalParaCalculo - ticket.fechaCreacion) -
+                        ticket.tiempoPausadoAcumulado
 
-            kotlinx.coroutines.delay(1000L)
+            if (tiempoActivoNeto < 0)
+                tiempoActivoNeto = 0
+
+            val tiempoRestante =
+                tiempoLimiteSLA - tiempoActivoNeto
+
+            if (tiempoRestante <= 0) {
+
+                estaVencido = true
+                tiempoTranscurridoTexto = "00:00:00"
+
+            } else {
+
+                estaVencido = false
+
+                val segundosTotales = tiempoRestante / 1000
+                val horas = segundosTotales / 3600
+                val minutos = (segundosTotales % 3600) / 60
+                val segundos = segundosTotales % 60
+
+                tiempoTranscurridoTexto = String.format(
+                    "%02d:%02d:%02d",
+                    horas,
+                    minutos,
+                    segundos
+                )
+            }
+
+            kotlinx.coroutines.delay(1000)
         }
     }
+
+
+// ======================================================================
     // ======================================================================
 
     if (mostrarConfirmacion) {
@@ -298,6 +337,7 @@ fun TicketCard(
                     else -> Color(0xFF4CAF50)
                 }
             )
+
 
             Spacer(modifier = Modifier.height(12.dp))
             Row(

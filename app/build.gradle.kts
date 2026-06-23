@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
 }
@@ -16,32 +15,23 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner =
-            "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-
             proguardFiles(
-                getDefaultProguardFile(
-                    "proguard-android-optimize.txt"
-                ),
+                getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
 
     compileOptions {
-        sourceCompatibility =
-            JavaVersion.VERSION_11
-
-        targetCompatibility =
-            JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-
-
 
     buildFeatures {
         compose = true
@@ -49,98 +39,45 @@ android {
 }
 
 dependencies {
-
+    // Core & Lifecycle
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    implementation(
-        libs.androidx.lifecycle.runtime.ktx
-    )
+    // Jetpack Compose BOM & UI
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.activity.compose)
 
-    implementation(
-        libs.androidx.activity.compose
-    )
+    // Material Design 3 & Icons
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.material3)
+    // Se añade esta línea para solucionar el error de Unresolved reference 'Icons' con Person, Notifications, etc.
+    implementation("androidx.compose.material:material-icons-extended")
 
-    implementation(
-        platform(
-            libs.androidx.compose.bom
-        )
-    )
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
 
-    implementation(
-        libs.androidx.compose.ui
-    )
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp("androidx.room:room-compiler:2.7.2")
 
-    implementation(
-        libs.androidx.compose.ui.graphics
-    )
+    // CameraX
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
 
-    implementation(
-        libs.androidx.compose.ui.tooling.preview
-    )
-
-    implementation(
-        libs.androidx.compose.material3
-    )
-
-    implementation(
-        libs.androidx.navigation.compose
-    )
-
-    implementation(
-        libs.androidx.room.runtime
-    )
-
-    implementation(
-        libs.androidx.room.ktx
-    )
-
-    ksp(
-        "androidx.room:room-compiler:2.7.2"
-    )
-
-    implementation(
-        libs.androidx.lifecycle.viewmodel.compose
-    )
-
-    implementation(
-        libs.androidx.camera.camera2
-    )
-
-    implementation(
-        libs.androidx.camera.lifecycle
-    )
-
-    implementation(
-        libs.androidx.camera.view
-    )
-
-    testImplementation(
-        libs.junit
-    )
-
-    androidTestImplementation(
-        libs.androidx.junit
-    )
-
-    androidTestImplementation(
-        libs.androidx.espresso.core
-    )
-
-    androidTestImplementation(
-        platform(
-            libs.androidx.compose.bom
-        )
-    )
-
-    androidTestImplementation(
-        libs.androidx.compose.ui.test.junit4
-    )
-
-    debugImplementation(
-        libs.androidx.compose.ui.tooling
-    )
-
-    debugImplementation(
-        libs.androidx.compose.ui.test.manifest
-    )
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    
+    // Debug
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

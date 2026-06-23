@@ -108,12 +108,18 @@ fun AddEditTicketScreen(
             modifier = Modifier.fillMaxWidth(),
             enabled = ubicacion.isNotBlank(), // Evita guardar si la ubicación está vacía
             onClick = {
+                val ahora = System.currentTimeMillis()
+
                 val ticket = TicketEntity(
                     titulo = tituloFijo,
                     descripcion = fayaSeleccionada,
                     ubicacion = ubicacion,
                     estado = "Pendiente",
-                    prioridad = prioridadAutomatica
+                    prioridad = prioridadAutomatica,
+
+                    fechaCreacion = ahora,
+                    ultimaVezPausado = ahora,
+                    tiempoPausadoAcumulado = 0L
                 )
 
                 viewModel.agregarTicket(ticket)

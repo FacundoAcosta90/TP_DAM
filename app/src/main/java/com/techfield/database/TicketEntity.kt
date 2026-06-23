@@ -17,7 +17,7 @@ data class TicketEntity(
     val observacionesTecnicas: String = "",
 
     // --- CAMPOS AGREGADOS PARA EL TEMPORIZADOR DE TICKETCARD ---
-    val fechaCreacion: Long = 0L,
+    val fechaCreacion: Long = System.currentTimeMillis(),
     val ultimaVezPausado: Long? = null,
     val tiempoPausadoAcumulado: Long = 0L
 )
